@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Incidencias extends Model
+class Reporte_Incidencias extends Model
 {
     use HasFactory;
 
-    protected $table = 'Incidencias';
-    protected $primaryKey = 'id_incidencia';
+    protected $table = 'reporte_incidencias';
+    protected $primaryKey = 'id_reporte_incidencia';
     public $timestamps = false;
     
     protected $fillable = [

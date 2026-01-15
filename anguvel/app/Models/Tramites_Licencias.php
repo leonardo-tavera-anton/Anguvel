@@ -40,7 +40,6 @@ class Tramites_Licencias extends Model
         'fecha_emision',
         'fecha_vencimiento',
         'enlace_pdf',
-
     ];
 
 

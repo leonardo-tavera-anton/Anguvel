@@ -14,12 +14,22 @@ class Consulta_Proyecto extends Model
     public $timestamps = false;
     
     protected $fillable = [
-        'titulo',
-        'descripcion',
-        'fecha_inicio_proyecto',
-        'fecha_fin_proyecto',
+        // buscar obras, listado de obras en ejecucion
+        'codigo_snip',
+        'nombre_obra',
+        'presupuesto',
+        'fecha_inicio',
+        'fecha_fin',
+
+        // estado avance, ver cuanto falta para que acabe la obra
+        'avance_fisico', //%
+        'avance_financiero', //%
+        'fecha_estimada_fin',
+
+        // empresa contratista, quien contrata la municipalidad
+        'ruc',
+        'razon_social',
+        'nombre_supervisor',
+
     ];
-
-
-
 }
