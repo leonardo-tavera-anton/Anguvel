@@ -16,8 +16,8 @@ class Consulta_Proyecto extends Model
     protected $fillable = [
         'titulo',
         'descripcion',
-        'fechaInicioProyecto',
-        'fechaFinProyecto',
+        'fecha_inicio_proyecto',
+        'fecha_fin_proyecto',
     ];
 
 
