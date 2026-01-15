@@ -29,6 +29,10 @@ class Seguridad_Ciudadana extends Model
         'correo',
 
         // zona de riesgo, mapa con alerta de seguridad recientes
+        'tipo_riesgo',
+        'ubicacion_riesgo',
+        'hora_riesgo',
+        'fecha_riesgo'
     ];
 
 
