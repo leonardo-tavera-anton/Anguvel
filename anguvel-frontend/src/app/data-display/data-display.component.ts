@@ -19,7 +19,7 @@ export class DataDisplayComponent implements OnInit {
     'consulta_proyectos',
     'gestion_tributaria_pagos',
     'reporte_incidencias',
-    'seguridad_ciudadanas',
+    'seguridad_ciudadana',
     'tramites_licencias'
   ];
   selectedResource: string = this.resources[0]; // Default to 'usuarios'

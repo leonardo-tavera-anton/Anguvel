@@ -16,7 +16,7 @@
     <table>
       <thead>
         <tr>
-          <th *ngFor="let key of (data[0] | keyvalue)">{{ key.key | titlecase }}</th>
+          <th *ngFor="let key of (data[0] | keyvalue)">{{ key.key?.toString() | titlecase }}</th>
         </tr>
       </thead>
       <tbody>
