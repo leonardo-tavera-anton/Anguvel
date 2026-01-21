@@ -10,7 +10,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   styleUrl: './header.component.scss'
 })
 export class HeaderComponent {
-  appName = 'Municipalidad de Anguvel';
+  appName = 'Municipalidad de Nuevo Chimbote';
   navItems = [
     { label: 'Inicio', path: '/' },
     { label: 'Trámites y Licencias', path: '/tramites-licencias' },
