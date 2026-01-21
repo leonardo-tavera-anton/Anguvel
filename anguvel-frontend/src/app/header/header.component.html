@@ -1,0 +1,16 @@
+<header class="header">
+  <div class="header-container">
+    <div class="logo">
+      <!-- Placeholder de la municipalidad -->
+      <img src="/anguvel-frontend/public/logo-Nuevo_Chimbote.png" alt="Logo Municipal" />
+      <span>{{ appName }}</span>
+    </div>
+    <nav class="navbar">
+      <ul class="nav-list">
+        <li *ngFor="let item of navItems" class="nav-item">
+          <a [routerLink]="item.path" routerLinkActive="active-link">{{ item.label }}</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>

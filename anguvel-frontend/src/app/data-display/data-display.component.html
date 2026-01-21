@@ -1,14 +1,14 @@
 <div class="data-display-container">
-  <h2>Data Explorer</h2>
+  <h2>Datos del backend</h2>
 
   <div class="controls">
-    <label for="resource-select">Select Resource:</label>
+    <label for="resource-select">Seleccione la fuente </label>
     <select id="resource-select" [(ngModel)]="selectedResource" (change)="fetchData()">
       <option *ngFor="let resource of resources" [value]="resource">{{ resource | titlecase }}</option>
     </select>
   </div>
 
-  <div *ngIf="loading" class="message loading">Loading data...</div>
+  <div *ngIf="loading" class="message loading">Cargando datos</div>
   <div *ngIf="error" class="message error">{{ error }}</div>
 
   <div *ngIf="!loading && !error && data.length > 0" class="data-table-container">

@@ -1,0 +1,32 @@
+<footer class="footer">
+  <div class="footer-container">
+    <div class="footer-section contact-info">
+      <h3>Contacto</h3>
+      <p>Dirección: {{ address }}</p>
+      <p>Horario: {{ horario }}</p>
+      <p>Email: <a href="mailto:{{ email }}">{{ email }}</a></p>
+    </div>
+    <div class="footer-section social-media">
+      <h3>Síguenos</h3>
+      <div class="social-icons">
+        <!-- iconos para el footer -->
+         <ul>
+          <li><a href="#" target="_blank"><i class="fab fa-facebook"></i>facebook</a></li>
+          <li><a href="#" target="_blank"><i class="fab fa-twitter"></i>x</a></li>
+          <li><a href="#" target="_blank"><i class="fab fa-instagram"></i>instagram</a></li>
+         </ul>
+      </div>
+    </div>
+    <div class="footer-section quick-links">
+      <h3>Enlaces Rápidos</h3>
+      <ul>
+        <li><a routerLink="/preguntas-frecuentes">Preguntas Frecuentes</a></li>
+        <li><a routerLink="/mapa-sitio">Mapa del Sitio</a></li>
+        <li><a routerLink="/politica-privacidad">Política de Privacidad</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; {{ currentYear }} {{ municipalityName }}. Todos los derechos reservados.</p>
+  </div>
+</footer>
