@@ -19,7 +19,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('/login', [UsuarioController::class, 'login']);
+Route::post('/login', [UsuarioController::class, 'login'])->name('login');
 
 Route::apiResource('consulta_proyectos', ConsultaProyectoController::class);
 Route::apiResource('gestion_tributaria_pagos', GestionTributariaPagosController::class);
