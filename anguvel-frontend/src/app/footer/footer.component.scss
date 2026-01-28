@@ -1,51 +1,57 @@
-// Variables locales
-$primary-dark: #001f3f;
-$accent: #ffd700;
-$text-light: #ffffff;
+$muni-azul: #004a99;      
+$muni-verde: #00a859;     
+$muni-amarillo: #ffcc00;  
+$muni-oscuro: #002d5a;    
+$blanco: #ffffff;
 $text-muted: #cbd5e1;
 
 .footer {
-  background-color: $primary-dark;
-  color: $text-light;
+  background: $muni-oscuro;
+  color: $blanco;
+  border-top: 6px solid $muni-verde;
   padding: 3rem 0 0;
-  border-top: 4px solid $accent;
 
   &-container {
     max-width: 1200px;
     margin: 0 auto;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2.5rem;
     padding: 0 1.5rem 3rem;
   }
 
-  &-section {
-    flex: 1 1 250px;
-    h3 { color: $accent; margin-bottom: 1rem; text-transform: uppercase; font-size: 1rem; }
+  .footer-section {
+    h3 {
+      color: $muni-amarillo;
+      font-size: 1.1rem;
+      margin-bottom: 1.2rem;
+      text-transform: uppercase;
+      border-left: 4px solid $muni-verde;
+      padding-left: 12px;
+    }
+    p, li { color: $text-muted; font-size: 0.9rem; line-height: 1.6; margin-bottom: 0.8rem; }
+    a { color: inherit; text-decoration: none; &:hover { color: $muni-amarillo; } }
     ul { list-style: none; padding: 0; }
-    p, li { color: $text-muted; font-size: 0.9rem; margin-bottom: 0.5rem; }
-    a { color: inherit; text-decoration: none; &:hover { color: $accent; } }
+  }
 
-    .social-icons {
-      display: flex;
-      gap: 15px;
-      a {
-        width: 35px; height: 35px;
-        background: rgba(255,255,255,0.1);
-        display: flex; align-items: center; justify-content: center;
-        border-radius: 50%;
-        transition: 0.3s;
-        &:hover { background: $accent; color: $primary-dark; transform: translateY(-3px); }
-      }
+  .social-icons {
+    display: flex;
+    gap: 12px;
+    a {
+      width: 40px; height: 40px;
+      background: rgba($blanco, 0.1);
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      transition: all 0.3s ease;
+      &:hover { background: $muni-amarillo; color: $muni-oscuro; transform: translateY(-5px); }
     }
   }
 
-  &-bottom {
+  .footer-bottom {
     background: rgba(0,0,0,0.2);
-    padding: 1rem 0;
+    padding: 1.2rem;
     text-align: center;
-    font-size: 0.8rem;
-    color: $text-muted;
+    p { font-size: 0.85rem; color: $muni-amarillo; margin: 0; }
   }
 }
