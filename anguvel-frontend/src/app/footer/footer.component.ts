@@ -14,5 +14,5 @@ export class FooterComponent {
   municipalityName = 'Municipalidad de Nuevo Chimbote';
   address = 'Centro Cívico S/N - Nuevo Chimbote Urb. José Carlos Mariátegui';
   horario = 'Lun - Vie: 08:00am - 04:00pm';
-  email = 'nchimbote@muni.gob.pe'; // placeholder mostrados en pagina
+  email = 'Nchimbote@muni.gob.pe'; // placeholder mostrados en pagina
 }

@@ -18,7 +18,21 @@
     }
   }
 
+  ::ng-deep {
+  // 1. ELIMINAR MÁRGENES DE LA PÁGINA (Esto une el header a los bordes)
   html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
     font-family: 'Poppins', sans-serif !important;
+    overflow-x: hidden; // Evita scroll horizontal molesto
   }
+
+  // 2. Asegura que el contenedor de los componentes no tenga padding
+  app-root {
+    display: block;
+    width: 100%;
+  }
+  
+}
 }
