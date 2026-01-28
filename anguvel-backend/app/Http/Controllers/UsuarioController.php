@@ -72,12 +72,13 @@ class UsuarioController extends Controller
     }
 
     $token = $usuario->createToken('auth_token')->plainTextToken;
-    #wasaaaaaaaaaaaa
+
     return response()->json([
         'usuario' => new UsuarioResource($usuario),
         'access_token' => $token,
         'token_type' => 'Bearer',
     ]);
 }
+
 
 }
