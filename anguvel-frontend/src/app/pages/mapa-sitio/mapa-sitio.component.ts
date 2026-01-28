@@ -74,8 +74,8 @@ export class MapaSitioComponent implements AfterViewInit {
     const L = await import('leaflet');
     
     // Coordenadas: Nuevo Chimbote
-    const lat = -9.1215;
-    const lng = -78.5283;
+    const lat = -9.1271288;
+    const lng = -78.5216441;
 
     const map = L.map('map').setView([lat, lng], 15);
 
