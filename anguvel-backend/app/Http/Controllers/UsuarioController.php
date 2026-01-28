@@ -59,20 +59,25 @@ class UsuarioController extends Controller
     }
 
     public function login(Request $request)
-    {
-        $request->validate([
-            'nombre' => 'required|string',
-            'password' => 'required|string',
-        ]);
+{
+    $request->validate([
+        'nombre' => 'required|string',
+        'contrasena' => 'required|string',
+    ]);
 
-        $usuario = Usuario::where('nombre', $request->nombre)->first();
+    $usuario = Usuario::where('nombre', $request->nombre)->first();
 
-        if (!$usuario || !Hash::check($request->password, $usuario->contrasena)) {
-            return response()->json(['message' => 'Credenciales incorrectas'], 401);
-        }
-
-        $token = $usuario->createToken('auth_token')->plainTextToken;
-
-        return (new UsuarioResource($usuario))->additional(['access_token' => $token]);
+    if (!$usuario || !Hash::check($request->contrasena, $usuario->contrasena)) {
+        return response()->json(['message' => 'Credenciales incorrectas'], 401);
     }
+
+    $token = $usuario->createToken('auth_token')->plainTextToken;
+
+    return response()->json([
+        'usuario' => new UsuarioResource($usuario),
+        'access_token' => $token,
+        'token_type' => 'Bearer',
+    ]);
+}
+
 }
