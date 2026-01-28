@@ -1,50 +1,92 @@
-/* --- HEADER RESPONSIVO --- */
+// Variables locales para que no de error
+$primary: #003366;
+$primary-dark: #001f3f;
+$accent: #ffd700;
+$text-light: #ffffff;
+$text-muted: #cbd5e1;
+$transition: all 0.3s ease;
+
 .header {
-  background-color: #003366;
-  color: #ffffff;
-  padding: 1rem 0;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  position: sticky; /* Opcional: para que te siga al bajar */
+  background: linear-gradient(135deg, $primary 0%, $primary-dark 100%);
+  backdrop-filter: blur(10px);
+  border-bottom: 2px solid $accent;
+  position: sticky;
   top: 0;
   z-index: 1000;
+  padding: 0.75rem 0;
+
+  &-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1.5rem;
+  }
 }
 
-.header-container {
-  max-width: 1200px;
-  margin: 0 auto;
+.logo {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 0 1rem;
+  gap: 12px;
+  img { height: 45px; }
+  span {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: $text-light;
+    font-size: 1.0rem;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+  h3 {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: $text-light;
+    font-size: 0.9rem;
+    font-weight: 230;
+    text-transform: uppercase;
+  }
 }
 
-/* Navbar Adaptable */
-.navbar .nav-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
+.navbar {
+  .nav-list {
+    display: flex;
+    list-style: none;
+    gap: 0.5rem;
+    margin: 0;
+
+    .nav-item a {
+      color: $text-muted;
+      text-decoration: none;
+      padding: 0.6rem 1rem;
+      font-weight: 500;
+      transition: $transition;
+      border-radius: 8px;
+
+      &:hover, &.active-link {
+        color: $accent;
+        background: rgba($accent, 0.1);
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: $primary-dark;
+    display: none;
+    border-bottom: 3px solid $accent;
+
+    &.active { display: block; }
+    .nav-list { flex-direction: column; .nav-item a { text-align: center; display: block; } }
+  }
 }
 
-/* MEDIA QUERY PARA CELULARES (Menos de 768px) */
-@media (max-width: 768px) {
-  .header-container {
-    flex-wrap: wrap; /* Permite que el menú baje si es necesario */
-  }
-
-  .navbar {
-    width: 100%; /* El menú ocupa todo el ancho abajo del logo */
-    display: none; /* OCULTO POR DEFECTO EN MÓVIL */
-    /* Aquí en Angular usarías una clase [class.show]="isMenuOpen" */
-  }
-
-  .navbar .nav-list {
-    flex-direction: column; /* Menú vertical en móvil */
-    padding: 1rem 0;
-  }
-
-  .nav-item {
-    margin: 0.5rem 0; /* Espaciado vertical */
-    margin-left: 0;
-  }
+.mobile-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.8rem;
+  @media (max-width: 768px) { display: block; }
 }

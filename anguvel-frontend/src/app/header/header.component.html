@@ -1,20 +1,26 @@
 <header class="header">
   <div class="header-container">
     <div class="logo">
-      <!-- Placeholder de la municipalidad -->
-      <img src="/anguvel-frontend/public/logo-Nuevo_Chimbote.png" alt="Logo Municipal" />
-      <span>{{ appName }}</span>
+      <img src="LOGO MDNCH.png" alt="Logo Municipal">
+      <span>{{ appName }}
+      <h3>{{ surName }}</h3>
+      </span>
     </div>
-    <nav class="navbar">
+
+    <button class="mobile-toggle" (click)="isMenuOpen = !isMenuOpen">
+      <i class="fas" [ngClass]="isMenuOpen ? 'fa-times' : 'fa-bars'"></i>
+    </button>
+
+    <nav class="navbar" [class.active]="isMenuOpen">
       <ul class="nav-list">
         <li *ngFor="let item of navItems" class="nav-item">
-          <a [routerLink]="item.path" routerLinkActive="active-link">{{ item.label }}</a>
+          <a [routerLink]="item.path" routerLinkActive="active-link" (click)="isMenuOpen = false">{{ item.label }}</a>
         </li>
         <li class="nav-item" *ngIf="!isAuthenticated">
-          <a [routerLink]="'/login'" routerLinkActive="active-link">Login</a>
+          <a [routerLink]="'/login'" class="btn-login" routerLinkActive="active-link">Ingresar</a>
         </li>
         <li class="nav-item" *ngIf="isAuthenticated">
-          <a (click)="onLogout()" style="cursor: pointer;">Logout</a>
+          <a (click)="onLogout()" class="btn-logout">Cerrar Sesión</a>
         </li>
       </ul>
     </nav>

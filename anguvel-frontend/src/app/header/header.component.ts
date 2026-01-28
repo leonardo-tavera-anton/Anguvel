@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive, Router } from '@angular/router'; // Import Router
-import { AuthService } from '../auth/auth.service'; // Import AuthService
-import { Subscription } from 'rxjs'; // Import Subscription
+import { RouterLink, RouterLinkActive, Router } from '@angular/router'; 
+import { AuthService } from '../auth/auth.service'; 
+import { Subscription } from 'rxjs'; 
 
 @Component({
   selector: 'app-header',
@@ -11,8 +11,13 @@ import { Subscription } from 'rxjs'; // Import Subscription
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
 })
-export class HeaderComponent implements OnInit, OnDestroy { // Implement OnInit and OnDestroy
+export class HeaderComponent implements OnInit, OnDestroy { 
   appName = 'Municipalidad de Nuevo Chimbote';
+  surName = 'Portal Consultas';
+  
+  // Variable para controlar el menú móvil
+  isMenuOpen: boolean = false; 
+
   navItems = [
     { label: 'Inicio', path: '/' },
     { label: 'Trámites y Licencias', path: '/tramites-licencias' },
@@ -25,7 +30,7 @@ export class HeaderComponent implements OnInit, OnDestroy { // Implement OnInit 
   isAuthenticated: boolean = false;
   private authSubscription: Subscription = new Subscription();
 
-  constructor(private authService: AuthService, private router: Router) { } // Inject AuthService and Router
+  constructor(private authService: AuthService, private router: Router) { } 
 
   ngOnInit(): void {
     this.authSubscription = this.authService.isAuthenticated$.subscribe(
@@ -35,11 +40,17 @@ export class HeaderComponent implements OnInit, OnDestroy { // Implement OnInit 
     );
   }
 
+  // Método opcional por si prefieres llamar a una función en el (click)
+  toggleMenu(): void {
+    this.isMenuOpen = !this.isMenuOpen;
+  }
+
   ngOnDestroy(): void {
     this.authSubscription.unsubscribe();
   }
 
   onLogout(): void {
     this.authService.logout();
+    this.isMenuOpen = false; // Cerramos el menú al cerrar sesión
   }
 }
