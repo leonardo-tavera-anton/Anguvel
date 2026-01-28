@@ -1,8 +1,12 @@
+/* --- HEADER RESPONSIVO --- */
 .header {
-  background-color: #003366; /* Dark blue for a professional look */
+  background-color: #003366;
   color: #ffffff;
   padding: 1rem 0;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  position: sticky; /* Opcional: para que te siga al bajar */
+  top: 0;
+  z-index: 1000;
 }
 
 .header-container {
@@ -14,22 +18,7 @@
   padding: 0 1rem;
 }
 
-.logo {
-  display: flex;
-  align-items: center;
-}
-
-.logo img {
-  height: 40px; /* Adjust logo size */
-  margin-right: 10px;
-  border-radius: 5px;
-}
-
-.logo span {
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
+/* Navbar Adaptable */
 .navbar .nav-list {
   list-style: none;
   margin: 0;
@@ -37,19 +26,25 @@
   display: flex;
 }
 
-.nav-item {
-  margin-left: 1.5rem;
-}
+/* MEDIA QUERY PARA CELULARES (Menos de 768px) */
+@media (max-width: 768px) {
+  .header-container {
+    flex-wrap: wrap; /* Permite que el menú baje si es necesario */
+  }
 
-.nav-item a {
-  color: #ffffff;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.3s ease;
-}
+  .navbar {
+    width: 100%; /* El menú ocupa todo el ancho abajo del logo */
+    display: none; /* OCULTO POR DEFECTO EN MÓVIL */
+    /* Aquí en Angular usarías una clase [class.show]="isMenuOpen" */
+  }
 
-.nav-item a:hover,
-.nav-item a.active-link {
-  color: #ffd700; /* Gold for highlight */
-  border-bottom: 2px solid #ffd700;
+  .navbar .nav-list {
+    flex-direction: column; /* Menú vertical en móvil */
+    padding: 1rem 0;
+  }
+
+  .nav-item {
+    margin: 0.5rem 0; /* Espaciado vertical */
+    margin-left: 0;
+  }
 }
