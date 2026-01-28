@@ -79,6 +79,6 @@ class UsuarioController extends Controller
         'token_type' => 'Bearer',
     ]);
 }
-#funciona p commit
+#funciona p commit 2
 
 }
