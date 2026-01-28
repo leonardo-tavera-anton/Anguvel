@@ -62,12 +62,12 @@ class UsuarioController extends Controller
     {
         $request->validate([
             'nombre' => 'required|string',
-            'password' => 'required|string',
+            'contrasena' => 'required|string',
         ]);
 
         $usuario = Usuario::where('nombre', $request->nombre)->first();
 
-        if (!$usuario || !Hash::check($request->password, $usuario->contrasena)) {
+        if (!$usuario || !Hash::check($request->contrasena, $usuario->contrasena)) {
             return response()->json(['message' => 'Credenciales incorrectas'], 401);
         }
 
