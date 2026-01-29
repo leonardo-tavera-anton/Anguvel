@@ -10,60 +10,58 @@ class ReporteIncidenciasController extends Controller
 {
     public function index()
     {
-        return ReporteIncidenciasResource::collection(Reporte_Incidencias::all());
+        // Trae los más nuevos primero
+        return ReporteIncidenciasResource::collection(Reporte_Incidencias::latest()->get());
     }
 
-    public function store(Request $request)
+    public function store(Request $request) 
     {
-        $validated = $request->validate([
-            'categoria' => 'sometimes|string|max:255',
-            'descripcion' => 'sometimes|string',
-            'ubicacion_incidencia' => 'sometimes|string|max:255',
-            'latitud' => 'sometimes|string|max:255',
-            'longitud' => 'sometimes|string|max:255',
-            'fecha_incidencia' => 'sometimes|date',
-            'hora_incidencia' => 'sometimes|date_format:H:i',
-            'foto_adjunta' => 'sometimes|string|max:255', // url
-            'numero_ticket' => 'sometimes|string|max:255',
-            'estado' => 'sometimes|string|max:255',
+        // 1. Validar TODO lo que viene de Angular
+        $validado = $request->validate([
+            'numero_ticket'        => 'required|unique:reporte_incidencias,numero_ticket',
+            'categoria'            => 'required|string',
+            'subcategoria'         => 'required|string',
+            'latitud'              => 'required',
+            'longitud'             => 'required',
+            'ubicacion_incidencia' => 'required',
+            'descripcion'          => 'required',
+            'estado'               => 'nullable|string',
+            'fecha_incidencia'     => 'nullable|date',
+            'hora_incidencia'      => 'nullable',
         ]);
 
-        $incidencia = Reporte_Incidencias::create($validated);
+        // 2. Manejar la foto (Si Angular envía el archivo)
+        if ($request->hasFile('foto_adjunta')) {
+            // Se guarda en storage/app/public/incidencias
+            $ruta = $request->file('foto_adjunta')->store('incidencias', 'public');
+            $validado['foto_adjunta'] = $ruta;
+        }
 
-        return new ReporteIncidenciasResource($incidencia);
+        // 3. Crear el registro
+        try {
+            $reporte = Reporte_Incidencias::create($validado); 
+            return response()->json([
+                'mensaje' => '¡Reporte ciudadano registrado!',
+                'ticket'  => $reporte->numero_ticket,
+                'data'    => $reporte
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error al guardar en BD',
+                'detalle' => $e->getMessage()
+            ], 500);
+        }
     }
 
-    public function show(Reporte_Incidencias $incidencia)
+    public function show(Reporte_Incidencias $reporte_incidencia)
     {
-        return new ReporteIncidenciasResource($incidencia);
+        return new ReporteIncidenciasResource($reporte_incidencia);
     }
 
-    public function update(Request $request, Reporte_Incidencias $incidencia)
+    public function destroy($id)
     {
-        $validated = $request->validate([
-            'categoria' => 'sometimes|string|max:255',
-            'descripcion' => 'sometimes|string',
-            'ubicacion_incidencia' => 'sometimes|string|max:255',
-            'fecha_incidencia' => 'sometimes|date',
-            'hora_incidencia' => 'sometimes|date_format:H:i',
-            'foto_adjunta' => 'sometimes|string|max:255',
-            'numero_ticket' => 'sometimes|string|max:255',
-            'estado' => 'sometimes|string|max:255',
-            'ubicacion_mapa' => 'sometimes|string|max:255',
-            'empresa_ejecutora' => 'sometimes|string|max:255',
-            'fecha_inicio' => 'sometimes|date',
-            'fecha_fin' => 'sometimes|date',
-        ]);
-
-        $incidencia->update($validated);
-
-        return new ReporteIncidenciasResource($incidencia);
-    }
-
-    public function destroy(Reporte_Incidencias $incidencia)
-    {
+        $incidencia = Reporte_Incidencias::findOrFail($id);
         $incidencia->delete();
-
-        return response()->json(null, 204);
+        return response()->json(['mensaje' => 'Eliminado'], 204);
     }
 }

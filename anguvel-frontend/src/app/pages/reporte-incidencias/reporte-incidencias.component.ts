@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core'; // Añadido inject
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
+import { ApiService } from '../../api.service'; // Asegúrate de que la ruta sea correcta
 
 @Component({
   selector: 'app-reporte-incidencias',
@@ -9,187 +10,140 @@ import { HttpClientModule, HttpClient } from '@angular/common/http';
   imports: [CommonModule, FormsModule, HttpClientModule],
   template: `
     <div class="app-container">
-      
       <header class="app-header">
         <div class="header-content">
-          <h1>Munireporte 2026</h1>
-          <span class="ticket-status">Ticket: {{ nuevoReporte.numero_ticket }}</span>
+          <span class="back-btn">‹</span>
+          <h1>Nuevo Reporte</h1>
+          <div class="ticket-badge">
+            <small>TICKET</small>
+            <span>{{ nuevoReporte.numero_ticket }}</span>
+          </div>
         </div>
       </header>
 
-      <div class="main-layout">
-        <main class="form-section">
-          <div class="card">
-            <p class="instruction">Complete los datos de la incidencia para atención inmediata.</p>
+      <main class="form-content">
+        <form (ngSubmit)="enviarIncidencia()">
+          
+          <div class="form-card">
+            <label>Categoría <span class="req">*</span></label>
+            <select [(ngModel)]="nuevoReporte.categoria" name="cat" (change)="onCategoriaChange()" required>
+              <option value="" disabled>Seleccione una categoría</option>
+              <option *ngFor="let cat of categoriasKeys" [value]="cat">{{ cat }}</option>
+            </select>
 
-            <form (ngSubmit)="enviarIncidencia()">
-              
-              <div class="form-group">
-                <label>¿Qué tipo de problema es?</label>
-                <div class="custom-select">
-                  <select [(ngModel)]="nuevoReporte.categoria" name="cat" (change)="onCategoriaChange()" required>
-                    <option value="" disabled>Seleccione una categoría</option>
-                    <option *ngFor="let cat of categoriasKeys" [value]="cat">{{ cat }}</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="form-group" *ngIf="nuevoReporte.categoria">
-                <label>Detalle de la incidencia</label>
-                <div class="custom-select">
-                  <select [(ngModel)]="nuevoReporte.subcategoria" name="sub" required>
-                    <option value="" disabled>Especifique el problema</option>
-                    <option *ngFor="let sub of subcategoriasDisponibles" [value]="sub">{{ sub }}</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label>Lugar de la incidencia</label>
-                <div class="location-box">
-                  <input type="text" [(ngModel)]="nuevoReporte.ubicacion_incidencia" name="ubi" 
-                         placeholder="Obteniendo dirección..." readonly>
-                  <button type="button" class="gps-btn" (click)="obtenerGeolocalizacion()" [class.loading]="cargandoGps">
-                    <span *ngIf="!cargandoGps">📍 Mi ubicación</span>
-                    <span *ngIf="cargandoGps">⌛ Localizando...</span>
-                  </button>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label>Descripción adicional (Opcional)</label>
-                <textarea [(ngModel)]="nuevoReporte.descripcion" name="desc" 
-                          placeholder="Ej. El poste está a punto de caer..." rows="3"></textarea>
-              </div>
-
-              <div class="form-group">
-                <label>Evidencia (Foto)</label>
-                <div class="photo-upload" (click)="fInput.click()">
-                  <input #fInput type="file" (change)="onFileSelected($event)" accept="image/*" hidden>
-                  <div *ngIf="!imagePreview" class="placeholder-content">
-                    <span class="icon">📷</span>
-                    <span>Tocar para tomar foto</span>
-                  </div>
-                  <img *ngIf="imagePreview" [src]="imagePreview" class="preview-img">
-                  <button type="button" *ngIf="imagePreview" class="change-photo">Cambiar</button>
-                </div>
-              </div>
-
-              <div class="time-info">
-                <span>📅 {{ nuevoReporte.fecha_incidencia }}</span>
-                <span>⏰ {{ nuevoReporte.hora_incidencia }}</span>
-              </div>
-
-              <button type="submit" class="submit-btn" [disabled]="cargandoGps || !nuevoReporte.subcategoria">
-                ENVIAR REPORTE OFICIAL
-              </button>
-            </form>
+            <label class="mt-15">Subcategoría <span class="req">*</span></label>
+            <select [(ngModel)]="nuevoReporte.subcategoria" name="sub" [disabled]="!nuevoReporte.categoria" required>
+              <option value="" disabled>Especifique el problema</option>
+              <option *ngFor="let sub of subcategoriasDisponibles" [value]="sub">{{ sub }}</option>
+            </select>
           </div>
-        </main>
 
-        <aside class="stats-section" *ngIf="rankingFrecuentes.length > 0">
-          <div class="stats-card">
-            <h3>📈 Reportes de hoy</h3>
-            <div class="stat-item" *ngFor="let item of rankingFrecuentes">
-              <div class="stat-header">
-                <span>{{ item.nombre }}</span>
-                <strong>{{ item.cantidad }}</strong>
-              </div>
-              <div class="stat-bar"><div class="fill" [style.width.%]="(item.cantidad / totalHoy) * 100"></div></div>
+          <div class="form-card">
+            <label>Ubicación Detectada <span class="req">*</span></label>
+            <div class="location-wrapper">
+              <textarea [(ngModel)]="nuevoReporte.ubicacion_incidencia" name="ubi" 
+                        placeholder="Dirección automática por GPS..." readonly required></textarea>
+              
+              <button type="button" class="btn-gps-large" (click)="obtenerGeolocalizacion()" [class.loading]="cargandoGps">
+                <span class="icon">📍</span>
+                {{ cargandoGps ? 'Localizando...' : 'Actualizar mi ubicación' }}
+              </button>
             </div>
           </div>
-        </aside>
-      </div>
+
+          <div class="form-card">
+            <label>Descripción del suceso <span class="req">*</span></label>
+            <textarea [(ngModel)]="nuevoReporte.descripcion" name="desc" 
+                      rows="3" placeholder="Describe brevemente lo ocurrido..." required></textarea>
+          </div>
+
+          <div class="form-card">
+            <label>Evidencia Visual (Opcional)</label>
+            <div class="custom-upload" (click)="fotoInput.click()">
+              <input #fotoInput type="file" (change)="onFileSelected($event)" accept="image/*" hidden>
+              
+              <div *ngIf="!imagePreview" class="upload-ui">
+                <span class="cam-icon">📸</span>
+                <p>Toca para tomar foto o subir</p>
+              </div>
+
+              <img *ngIf="imagePreview" [src]="imagePreview" class="preview-img">
+              <div *ngIf="imagePreview" class="change-label">Tap para cambiar foto</div>
+            </div>
+          </div>
+
+          <div class="action-area">
+            <button type="submit" class="btn-submit" [disabled]="!esValido() || cargandoGps">
+              REGISTRAR REPORTE
+            </button>
+          </div>
+        </form>
+      </main>
     </div>
   `,
   styles: [`
-    :host { --primary: #003366; --secondary: #28a745; --bg: #f0f4f8; }
-    .app-container { background: var(--bg); min-height: 100vh; font-family: 'Inter', system-ui, sans-serif; }
-    
-    /* Header */
-    .app-header { background: var(--primary); color: white; padding: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-    .header-content { max-width: 1000px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-    .header-content h1 { font-size: 1.2rem; margin: 0; }
-    .ticket-status { font-size: 0.8rem; opacity: 0.9; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px; }
-
-    /* Layout */
-    .main-layout { display: flex; gap: 2rem; padding: 1.5rem; max-width: 1000px; margin: 0 auto; flex-wrap: wrap; }
-    .form-section { flex: 2; min-width: 320px; }
-    .stats-section { flex: 1; min-width: 280px; }
-
-    /* Card & Forms */
-    .card { background: white; padding: 1.5rem; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-    .instruction { color: #666; font-size: 0.9rem; margin-bottom: 1.5rem; }
-    
-    .form-group { margin-bottom: 1.2rem; }
-    .form-group label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem; color: #333; }
-    
-    input, select, textarea { 
-      width: 100%; padding: 12px; border: 2px solid #e1e8ef; border-radius: 12px; 
-      font-size: 1rem; background: #f8fafc; transition: 0.3s;
+    :host { --primary: #003366; --accent: #28a745; --bg: #f5f7fa; }
+    * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+    .app-container { background: var(--bg); min-height: 100vh; }
+    .app-header { background: var(--primary); color: white; padding: 15px; position: sticky; top: 0; z-index: 100; }
+    .header-content { display: flex; justify-content: space-between; align-items: center; max-width: 500px; margin: 0 auto; }
+    .back-btn { font-size: 30px; font-weight: 200; cursor: pointer; }
+    h1 { font-size: 18px; margin: 0; }
+    .ticket-badge { text-align: right; background: rgba(255,255,255,0.15); padding: 5px 12px; border-radius: 8px; }
+    .ticket-badge small { display: block; font-size: 9px; opacity: 0.8; letter-spacing: 1px; }
+    .ticket-badge span { font-size: 12px; font-weight: bold; color: #ffcc00; }
+    .form-content { max-width: 500px; margin: 0 auto; padding: 15px; }
+    .form-card { background: white; padding: 20px; border-radius: 16px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    label { display: block; font-size: 13px; font-weight: 700; color: #444; margin-bottom: 8px; }
+    .req { color: #e74c3c; }
+    .mt-15 { margin-top: 15px; }
+    select, textarea {
+      width: 100%; padding: 14px; border: 1.5px solid #eee; border-radius: 12px;
+      font-size: 16px; background: #fafafa; color: #333; transition: 0.3s;
     }
-    input:focus, select:focus { border-color: var(--primary); outline: none; background: white; }
-
-    /* Location Box */
-    .location-box { display: flex; flex-direction: column; gap: 8px; }
-    .gps-btn { 
-      background: var(--secondary); color: white; border: none; padding: 12px; 
-      border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.2s;
+    select:focus, textarea:focus { border-color: var(--primary); outline: none; background: white; }
+    .location-wrapper { display: flex; flex-direction: column; gap: 10px; }
+    .btn-gps-large {
+      width: 100%; background: var(--accent); color: white; border: none; padding: 15px;
+      border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
     }
-    .gps-btn:active { transform: scale(0.98); }
-    .gps-btn.loading { background: #6c757d; }
-
-    /* Photo Upload */
-    .photo-upload { 
-      width: 100%; height: 200px; border: 2px dashed #cbd5e0; border-radius: 15px;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      background: #f8fafc; cursor: pointer; position: relative; overflow: hidden;
+    .custom-upload {
+      width: 100%; height: 180px; background: #f0f4f8; border: 2px dashed #cbd5e0;
+      border-radius: 12px; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; position: relative; overflow: hidden;
     }
+    .upload-ui { text-align: center; color: var(--primary); }
+    .cam-icon { font-size: 40px; display: block; margin-bottom: 5px; }
     .preview-img { width: 100%; height: 100%; object-fit: cover; }
-    .placeholder-content { text-align: center; color: var(--primary); }
-    .placeholder-content .icon { font-size: 2.5rem; display: block; }
-    .change-photo { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.6); color: white; border: none; padding: 5px 12px; border-radius: 8px; }
-
-    .time-info { display: flex; justify-content: space-around; background: #eef2f7; padding: 10px; border-radius: 10px; margin: 1rem 0; font-size: 0.85rem; font-weight: bold; color: var(--primary); }
-
-    .submit-btn { 
-      width: 100%; padding: 18px; background: var(--primary); color: white; 
-      border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; cursor: pointer;
-      box-shadow: 0 4px 15px rgba(0, 51, 102, 0.3);
+    .change-label { position: absolute; bottom: 0; width: 100%; background: rgba(0,0,0,0.6); color: white; padding: 5px; font-size: 11px; text-align: center; }
+    .btn-submit {
+      width: 100%; background: var(--primary); color: white; border: none; padding: 20px;
+      border-radius: 16px; font-size: 16px; font-weight: bold; cursor: pointer;
+      box-shadow: 0 6px 15px rgba(0,51,102,0.2);
     }
-    .submit-btn:disabled { background: #cbd5e0; cursor: not-allowed; box-shadow: none; }
-
-    /* Stats Card */
-    .stats-card { background: white; padding: 1.2rem; border-radius: 20px; border-top: 4px solid var(--primary); }
-    .stat-item { margin-bottom: 1rem; }
-    .stat-header { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px; }
-    .stat-bar { background: #edf2f7; height: 8px; border-radius: 4px; overflow: hidden; }
-    .stat-bar .fill { background: var(--primary); height: 100%; border-radius: 4px; }
-
-    @media (max-width: 600px) {
-      .main-layout { padding: 1rem; }
-      .header-content h1 { font-size: 1rem; }
-    }
+    .btn-submit:disabled { background: #cbd5e0; box-shadow: none; cursor: not-allowed; }
   `]
 })
 export class ReporteIncidenciasComponent implements OnInit {
+  private apiService = inject(ApiService); // Inyectamos tu ApiService actualizado
 
-  // --- CRITERIO PRO: CATÁLOGO EXTENDIDO ---
-  catalogo: { [key: string]: string[] } = {
-    'SEGURIDAD CIUDADANA': ['ROBO/ASALTO', 'INTENTO DE ROBO', 'SOSPECHOSO EN LA ZONA', 'PELEA CALLEJERA', 'ASESINATO/HOMICIDIO', 'CONSUMO DE DROGAS/ALCOHOL', 'VANDALISMO/GRAFFITI'],
-    'INFRAESTRUCTURA': ['BACHE EN PISTA', 'VEREDA ROTA', 'ALUMBRADO APAGADO', 'POSTE INCLINADO', 'SEMAFORO MALOGRADO', 'OBRA ABANDONADA', 'PUENTE DAÑADO'],
-    'LIMPIEZA Y SANIDAD': ['BASURA ACUMULADA', 'DESMONTE/ESCOMBROS', 'QUEMA DE BASURA', 'RECOLECCIÓN DEFICIENTE', 'ANIMAL MUERTO EN VÍA', 'PLAGAS (ROEDORES)'],
-    'MEDIO AMBIENTE': ['INCENDIO', 'ARBOL CAIDO/RIESGO', 'FALTA DE RIEGO', 'PODA DE ÁRBOL', 'RUIDOS MOLESTOS', 'CONTAMINACIÓN VISUAL'],
-    'PROTECCIÓN ANIMAL': ['MALTRATO ANIMAL', 'ANIMAL HERIDO', 'ABANDONO', 'ANIMAL PELIGROSO SUELTO'],
-    'TRÁNSITO Y TRANSPORTE': ['VEHÍCULO MAL ESTACIONADO', 'PARADERO INFORMAL', 'EXCESO DE VELOCIDAD', 'CHOQUE/ACCIDENTE']
+  catalogo: any = {
+    'SEGURIDAD CIUDADANA': ['ROBO', 'INTENTO DE ROBO', 'SOSPECHOSO', 'PELEAS', 'ASESINATO'],
+    'INFRAESTRUCTURA': ['ALUMBRADO', 'VEREDAS', 'BACHES', 'SEMAFOROS'],
+    'LIMPIEZA': ['BASURA ACUMULADA', 'DESMONTE', 'QUEMA DE BASURA'],
+    'MEDIO AMBIENTE': ['INCENDIO', 'ARBOL CAIDO', 'FALTA DE RIEGO'],
+    'PROTECCIÓN ANIMAL': ['MALTRATO ANIMAL', 'ANIMAL HERIDO', 'ABANDONO']
   };
 
   categoriasKeys = Object.keys(this.catalogo);
   subcategoriasDisponibles: string[] = [];
-  
-  nuevoReporte = {
+  cargandoGps = false;
+  imagePreview: string | null = null;
+
+  nuevoReporte: any = {
     numero_ticket: '',
-    estado: 'pendiente' as const,
+    estado: 'pendiente',
     categoria: '',
     subcategoria: '',
     descripcion: '',
@@ -198,49 +152,46 @@ export class ReporteIncidenciasComponent implements OnInit {
     longitud: '',
     fecha_incidencia: '',
     hora_incidencia: '',
-    foto_adjunta: null as any
+    foto_adjunta: null
   };
-
-  imagePreview: string | null = null;
-  cargandoGps = false;
-  historicoReal: any[] = [];
-  rankingFrecuentes: any[] = [];
-  totalHoy = 0;
 
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    this.resetForm();
-    this.obtenerGeolocalizacion(); // Auto-start GPS al abrir la app
+    this.generarTicketReal();
+  }
+
+  generarTicketReal() {
+    const ahora = new Date();
+    const isoDate = ahora.getFullYear().toString() +
+                    (ahora.getMonth() + 1).toString().padStart(2, '0') +
+                    ahora.getDate().toString().padStart(2, '0');
+    const isoTime = ahora.getHours().toString().padStart(2, '0') +
+                    ahora.getMinutes().toString().padStart(2, '0') +
+                    ahora.getSeconds().toString().padStart(2, '0');
+    
+    this.nuevoReporte.numero_ticket = `TK-${isoDate}-${isoTime}`;
+    this.nuevoReporte.fecha_incidencia = ahora.toLocaleDateString('en-CA');
+    this.nuevoReporte.hora_incidencia = ahora.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
   }
 
   onCategoriaChange() {
     this.subcategoriasDisponibles = this.catalogo[this.nuevoReporte.categoria];
-    this.nuevoReporte.subcategoria = ''; 
+    this.nuevoReporte.subcategoria = '';
   }
 
   obtenerGeolocalizacion() {
     this.cargandoGps = true;
-    if (!navigator.geolocation) {
-      alert("GPS no soportado");
-      this.cargandoGps = false;
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        this.nuevoReporte.latitud = pos.coords.latitude.toString();
-        this.nuevoReporte.longitud = pos.coords.longitude.toString();
-        
-        // Reverse Geocoding para poner la calle real
-        this.http.get<any>(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${this.nuevoReporte.latitud}&lon=${this.nuevoReporte.longitud}`)
-          .subscribe(data => {
-            this.nuevoReporte.ubicacion_incidencia = data.display_name; // ubicacion exacta
-            this.cargandoGps = false;
-          });
-      },
-      () => { this.cargandoGps = false; }
-    );
+    navigator.geolocation.getCurrentPosition((pos) => {
+      this.nuevoReporte.latitud = pos.coords.latitude.toString();
+      this.nuevoReporte.longitud = pos.coords.longitude.toString();
+      
+      this.http.get<any>(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${this.nuevoReporte.latitud}&lon=${this.nuevoReporte.longitud}`)
+        .subscribe(data => {
+          this.nuevoReporte.ubicacion_incidencia = data.display_name;
+          this.cargandoGps = false;
+        }, () => this.cargandoGps = false);
+    }, () => this.cargandoGps = false);
   }
 
   onFileSelected(event: any) {
@@ -253,40 +204,33 @@ export class ReporteIncidenciasComponent implements OnInit {
     }
   }
 
-  enviarIncidencia() {
-    // Aquí simulamos el envío exitoso
-    const reporteFinal = { ...this.nuevoReporte };
-    this.historicoReal.push(reporteFinal);
-    this.actualizarRanking();
-    
-    alert(`✅ Reporte enviado: ${this.nuevoReporte.numero_ticket}\nSe ha notificado a las unidades de ${this.nuevoReporte.categoria}.`);
-    this.resetForm();
+  esValido(): boolean {
+    return !!(this.nuevoReporte.categoria && this.nuevoReporte.subcategoria && this.nuevoReporte.latitud && this.nuevoReporte.descripcion);
   }
 
-  actualizarRanking() {
-    this.totalHoy = this.historicoReal.length;
-    const counts = this.historicoReal.reduce((acc, curr) => {
-      acc[curr.categoria] = (acc[curr.categoria] || 0) + 1;
-      return acc;
-    }, {});
-    this.rankingFrecuentes = Object.keys(counts).map(k => ({ nombre: k, cantidad: counts[k] }));
+  enviarIncidencia() {
+    // Usamos el ApiService para enviar la data real al Back
+    this.apiService.crearReporte(this.nuevoReporte).subscribe({
+      next: (res) => {
+        alert("✅ Reporte guardado en base de datos. Ticket: " + this.nuevoReporte.numero_ticket);
+        this.resetForm();
+      },
+      error: (err) => {
+        console.error('Error al guardar reporte:', err);
+        alert("❌ Error: No se pudo conectar con el servidor o el ticket ya existe.");
+      }
+    });
   }
 
   resetForm() {
-    const ahora = new Date();
-    this.nuevoReporte = {
-      numero_ticket: 'TK-' + Math.floor(100000 + Math.random() * 900000),
-      estado: 'pendiente',
-      categoria: '',
-      subcategoria: '',
-      descripcion: '',
-      ubicacion_incidencia: this.nuevoReporte.ubicacion_incidencia, // mantenemos ubicación si ya la tiene
-      latitud: this.nuevoReporte.latitud,
-      longitud: this.nuevoReporte.longitud,
-      fecha_incidencia: ahora.toLocaleDateString('en-CA'),
-      hora_incidencia: ahora.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
-      foto_adjunta: null
-    };
+    this.generarTicketReal();
+    this.nuevoReporte.categoria = '';
+    this.nuevoReporte.subcategoria = '';
+    this.nuevoReporte.descripcion = '';
+    this.nuevoReporte.ubicacion_incidencia = '';
+    this.nuevoReporte.latitud = '';
+    this.nuevoReporte.longitud = '';
+    this.nuevoReporte.foto_adjunta = null;
     this.imagePreview = null;
   }
 }

@@ -14,28 +14,28 @@ class Reporte_Incidencias extends Model
     public $timestamps = false;
     
     protected $fillable = [
-
-        // seguimiento ticket, ver estado del reporte de indicencias
-        'numero_ticket',
-        'estado', /** pendiente/en proceso/resuelto */
-
-        // reporte incidencias, baches, luces apagadas, basura, etc.
-        'categoria',
-        'subcategoria',
-        'descripcion',
-        'ubicacion_incidencia',
-        'latitud',
-        'longitud',
-        'fecha_incidencia',
-        'hora_incidencia',
+        'numero_ticket', 
+        'estado', 
+        'categoria', 
+        'subcategoria', 
+        'descripcion', 
+        'ubicacion_incidencia', 
+        'latitud', 
+        'longitud', 
+        'fecha_incidencia', 
+        'hora_incidencia', 
         'foto_adjunta',
+        'id_usuario',
     ];
 
-    /**
-     * Get the route key for the model.
-     *
-     * @return string
-     */
+    // Relación con Facultad
+    public function facultad()
+    {
+        return $this->belongsTo(Facultad::class, 'id_facultad', 'id_facultad');
+    }
+
+
+
     public function getRouteKeyName()
     {
         return 'id_reporte_incidencia';
