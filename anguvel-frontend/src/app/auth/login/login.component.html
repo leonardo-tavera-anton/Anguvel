@@ -1,17 +1,28 @@
-<div class="login-container">
-  <h2>Login</h2>
-  <form (ngSubmit)="onLogin()">
-    <div class="form-group">
-      <label for="nombre">Nombre:</label>
-      <input type="text" id="nombre" [(ngModel)]="credentials.nombre" name="nombre" required>
+<div class="login-wrapper">
+  <div class="login-card">
+    <h2>Bienvenido</h2>
+    <p class="subtitle">Ingresa tus datos</p>
+    
+    <form (ngSubmit)="onLogin()" #loginForm="ngForm">
+      <div class="input-box">
+        <input type="text" [(ngModel)]="credentials.nombre" name="nombre" required placeholder=" ">
+        <label>Usuario</label>
+        <span class="bar"></span>
+      </div>
+
+      <div class="input-box">
+        <input type="password" [(ngModel)]="credentials.contrasena" name="password" required placeholder=" ">
+        <label>Contraseña</label>
+        <span class="bar"></span>
+      </div>
+
+      <button type="submit" [disabled]="!loginForm.form.valid" class="btn-login">
+        INGRESAR
+      </button>
+    </form>
+
+    <div *ngIf="errorMessage" class="error-bubble">
+      {{ errorMessage }}
     </div>
-    <div class="form-group">
-      <label for="password">Password:</label>
-      <input type="password" id="password" [(ngModel)]="credentials.contrasena" name="password" required>
-    </div>
-    <button type="submit">Login</button>
-  </form>
-  <div *ngIf="errorMessage" class="error-message">
-    {{ errorMessage }}
   </div>
 </div>
