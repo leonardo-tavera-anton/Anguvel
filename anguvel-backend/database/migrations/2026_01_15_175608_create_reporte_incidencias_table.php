@@ -16,15 +16,13 @@ return new class extends Migration
             $table->string('categoria', 100);
             $table->text('descripcion');
             $table->string('ubicacion_incidencia', 255);
+            $table->string('latitud', 255);
+            $table->string('longitud', 255);
             $table->date('fecha_incidencia');
             $table->time('hora_incidencia');
             $table->string('foto_adjunta', 255)->nullable();
             $table->string('numero_ticket', 50)->unique()->nullable();
             $table->string('estado', 50)->nullable(); // pendiente/en proceso/resuelto
-            $table->string('ubicacion_mapa', 255)->nullable();
-            $table->string('empresa_ejecutora', 255)->nullable();
-            $table->date('fecha_inicio')->nullable();
-            $table->date('fecha_fin')->nullable();
         });
     }
 
