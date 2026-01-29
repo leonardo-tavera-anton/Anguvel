@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   template: `
     <div class="page-container">
-      <h2>Bienvenido a la Municipalidad de Anguvel</h2>
+      <h2>Bienvenido al portal consultas</h2>
       <p>Este es el portal oficial de la Municipalidad, donde podrá realizar diversos trámites y consultas en línea.</p>
       <p>Explore nuestras secciones para encontrar la información que necesita.</p>
     </div>
