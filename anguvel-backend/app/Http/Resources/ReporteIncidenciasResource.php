@@ -20,15 +20,13 @@ class ReporteIncidenciasResource extends JsonResource
             'categoria' => $this->categoria,
             'descripcion' => $this->descripcion,
             'ubicacion_incidencia' => $this->ubicacion_incidencia,
+            'latitud' => $this->latitud,
+            'longitud'=> $this->longitud,
             'fecha_incidencia' => $this->fecha_incidencia,
             'hora_incidencia' => $this->hora_incidencia,
             'foto_adjunta' => $this->foto_adjunta,
             'numero_ticket' => $this->numero_ticket,
             'estado' => $this->estado,
-            'ubicacion_mapa' => $this->ubicacion_mapa,
-            'empresa_ejecutora' => $this->empresa_ejecutora,
-            'fecha_inicio' => $this->fecha_inicio,
-            'fecha_fin' => $this->fecha_fin,
         ];
     }
 }

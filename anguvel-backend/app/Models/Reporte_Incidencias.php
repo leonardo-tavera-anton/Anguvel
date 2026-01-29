@@ -14,23 +14,21 @@ class Reporte_Incidencias extends Model
     public $timestamps = false;
     
     protected $fillable = [
-        // reporte incidencias, baches, luces apagadas, basura, etc.
-        'categoria',
-        'descripcion',
-        'ubicacion_incidencia',
-        'fecha_incidencia',
-        'hora_incidencia',
-        'foto_adjunta',
 
         // seguimiento ticket, ver estado del reporte de indicencias
         'numero_ticket',
         'estado', /** pendiente/en proceso/resuelto */
 
-        // mapa de obras, informacion sobre reparaciones de via publica
-        'ubicacion_mapa',
-        'empresa_ejecutora',
-        'fecha_inicio',
-        'fecha_fin',
+        // reporte incidencias, baches, luces apagadas, basura, etc.
+        'categoria',
+        'subcategoria',
+        'descripcion',
+        'ubicacion_incidencia',
+        'latitud',
+        'longitud',
+        'fecha_incidencia',
+        'hora_incidencia',
+        'foto_adjunta',
     ];
 
     /**

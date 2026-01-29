@@ -19,15 +19,13 @@ class ReporteIncidenciasController extends Controller
             'categoria' => 'sometimes|string|max:255',
             'descripcion' => 'sometimes|string',
             'ubicacion_incidencia' => 'sometimes|string|max:255',
+            'latitud' => 'sometimes|string|max:255',
+            'longitud' => 'sometimes|string|max:255',
             'fecha_incidencia' => 'sometimes|date',
             'hora_incidencia' => 'sometimes|date_format:H:i',
-            'foto_adjunta' => 'sometimes|string|max:255', // Assuming it's a path or URL
+            'foto_adjunta' => 'sometimes|string|max:255', // url
             'numero_ticket' => 'sometimes|string|max:255',
             'estado' => 'sometimes|string|max:255',
-            'ubicacion_mapa' => 'sometimes|string|max:255',
-            'empresa_ejecutora' => 'sometimes|string|max:255',
-            'fecha_inicio' => 'sometimes|date',
-            'fecha_fin' => 'sometimes|date',
         ]);
 
         $incidencia = Reporte_Incidencias::create($validated);
