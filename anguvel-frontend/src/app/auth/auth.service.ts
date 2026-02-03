@@ -33,9 +33,11 @@ export class AuthService {
   login(credentials: any): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/login`, credentials).pipe(
       tap(response => {
-        if (response && response.access_token) {
+        if (response && response.access_token && response.usuario) {
           if (isPlatformBrowser(this.platformId)) {
             localStorage.setItem('access_token', response.access_token);
+            localStorage.setItem('id_usuario', response.usuario.id_usuario);
+            localStorage.setItem('user_name', response.usuario.nombre);
           }
           this.isAuthenticatedSubject.next(true);
         }
@@ -45,8 +47,12 @@ export class AuthService {
 
   logout(): void {
     if (isPlatformBrowser(this.platformId)) {
-      // Optionally, you can call a backend logout endpoint here if needed
+      // Call a backend logout endpoint here if it exists and is needed.
+      // e.g., this.http.post(`${this.apiUrl}/logout`, {}).subscribe();
+      
       localStorage.removeItem('access_token');
+      localStorage.removeItem('id_usuario');
+      localStorage.removeItem('user_name');
     }
     this.isAuthenticatedSubject.next(false);
     this.router.navigate(['/login']); // Redirect to login page after logout

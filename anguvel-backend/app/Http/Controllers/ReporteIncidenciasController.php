@@ -5,19 +5,21 @@ namespace App\Http\Controllers;
 use App\Models\Reporte_Incidencias;
 use Illuminate\Http\Request;
 use App\Http\Resources\ReporteIncidenciasResource;
+use Illuminate\Support\Facades\Storage;
 
 class ReporteIncidenciasController extends Controller
 {
     public function index()
     {
-        // Trae los más nuevos primero
-        return ReporteIncidenciasResource::collection(Reporte_Incidencias::latest()->get());
+        // Trae los más nuevos primero, incluyendo la relación con el usuario si la necesitan
+        return ReporteIncidenciasResource::collection(Reporte_Incidencias::with('usuario')->latest()->get());
     }
 
     public function store(Request $request) 
     {
-        // 1. Validar TODO lo que viene de Angular
+        // 1. Validar TODO incluyendo el id_usuario
         $validado = $request->validate([
+            'id_usuario'           => 'required|exists:usuarios,id_usuario', // Clave para la relación
             'numero_ticket'        => 'required|unique:reporte_incidencias,numero_ticket',
             'categoria'            => 'required|string',
             'subcategoria'         => 'required|string',
@@ -28,18 +30,21 @@ class ReporteIncidenciasController extends Controller
             'estado'               => 'nullable|string',
             'fecha_incidencia'     => 'nullable|date',
             'hora_incidencia'      => 'nullable',
+            'foto_adjunta'         => 'nullable|image|max:2048', // Validación de imagen
         ]);
 
-        // 2. Manejar la foto (Si Angular envía el archivo)
+        // 2. Manejar la foto
         if ($request->hasFile('foto_adjunta')) {
-            // Se guarda en storage/app/public/incidencias
+            // Guarda en storage/app/public/incidencias
             $ruta = $request->file('foto_adjunta')->store('incidencias', 'public');
             $validado['foto_adjunta'] = $ruta;
         }
 
         // 3. Crear el registro
         try {
+            // Como id_usuario está en $validado y en el $fillable del modelo, se guardará solo
             $reporte = Reporte_Incidencias::create($validado); 
+            
             return response()->json([
                 'mensaje' => '¡Reporte ciudadano registrado!',
                 'ticket'  => $reporte->numero_ticket,
@@ -53,7 +58,7 @@ class ReporteIncidenciasController extends Controller
         }
     }
 
-    public function show(Reporte_Incidencias $reporte_incidencia)
+     public function show(Reporte_Incidencias $reporte_incidencia)
     {
         return new ReporteIncidenciasResource($reporte_incidencia);
     }

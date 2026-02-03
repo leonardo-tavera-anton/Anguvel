@@ -21,12 +21,17 @@ export class LoginComponent {
   constructor(private authService: AuthService, private router: Router) { }
 
   onLogin(): void {
+    this.errorMessage = null; // Reset error message on new login attempt
     this.authService.login(this.credentials).subscribe({
       next: () => {
-        this.router.navigate(['/']); // Redirect to home or dashboard on successful login
+        // Navigation on success is now handled by the AuthService,
+        // but we can also navigate from here if we want a specific redirection.
+        this.router.navigate(['/reporte-incidencias']);
       },
       error: (err) => {
-        this.errorMessage = err.error?.message || 'Fallo al iniciar por favor verifique sus datos.';
+        // Handle login errors (e.g., wrong credentials)
+        this.errorMessage = err.error?.message || 'Error al iniciar sesión. Por favor, intente de nuevo.';
+        console.error('Login failed', err);
       }
     });
   }
