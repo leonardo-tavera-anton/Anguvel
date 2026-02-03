@@ -62,6 +62,10 @@ export class ApiService {
     return this.http.get<any[]>(`${this.baseUrl}/usuarios`);
   }
 
+  public getAll(resource: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}/${resource}`);
+  }
+  
   /**
    * MÉTODO GENÉRICO PARA ELIMINAR CUALQUIER RECURSO
    * Ejemplo: this.apiService.deleteGeneric('reporte_incidencias', 5)

@@ -1,18 +1,17 @@
-import { Component, OnInit, inject, PLATFORM_ID, Inject } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common'; // Importante para SSR
+import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common'; 
 import { ApiService } from '../api.service';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-data-display',
   standalone: true,
-  imports: [CommonModule, FormsModule], // HttpClientModule ya no es necesario aquí si usas provideHttpClient
+  imports: [CommonModule, FormsModule], 
   templateUrl: './data-display.component.html',
   styleUrl: './data-display.component.scss'
 })
 export class DataDisplayComponent implements OnInit {
   private apiService = inject(ApiService);
-  // Inyectamos el ID de la plataforma para saber si estamos en el navegador
   private platformId = inject(PLATFORM_ID);
 
   resources: string[] = [
@@ -30,7 +29,6 @@ export class DataDisplayComponent implements OnInit {
   error: string | null = null;
 
   ngOnInit(): void {
-    // ESTO ES CLAVE: Solo ejecuta la carga inicial si estamos en el cliente (browser)
     if (isPlatformBrowser(this.platformId)) {
       this.fetchData();
     }
@@ -39,11 +37,12 @@ export class DataDisplayComponent implements OnInit {
   fetchData(): void {
     this.loading = true;
     this.error = null;
-    this.data = []; // Limpiamos datos anteriores al cambiar
+    this.data = []; 
 
+    // Llamada al servicio con el método getAll definido previamente
     this.apiService.getAll(this.selectedResource).subscribe({
       next: (response: any) => {
-        // Validación de datos: Laravel suele enviar { data: [] } o []
+        // Validación de datos para respuestas de Laravel
         if (Array.isArray(response)) {
           this.data = response;
         } else if (response && response.data && Array.isArray(response.data)) {
@@ -55,7 +54,7 @@ export class DataDisplayComponent implements OnInit {
         this.loading = false;
         console.log('Datos cargados para:', this.selectedResource, this.data);
       },
-      error: (err) => {
+      error: (err: any) => { // <--- CORREGIDO: Se añadió ': any' para evitar el error TS7006
         console.error('Error fetching data:', err);
         this.error = `Error: No se pudo conectar con el recurso "${this.selectedResource}".`;
         this.loading = false;
