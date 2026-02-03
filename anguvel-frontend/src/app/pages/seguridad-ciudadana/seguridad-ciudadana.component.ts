@@ -169,6 +169,6 @@ export class SeguridadCiudadanaComponent {
   verHospital() {
     this.limpiarMapas();
     this.activo = 'hospital';
-    this.crearMapa('mapHospital', -9.1190053,-78.5220558, '🏥 Hospital Regional Nuevo Chimbote');
+    this.crearMapa('mapHospital', -9.1190053,-78.5200058, '🏥 Hospital Regional Nuevo Chimbote');
   }
 }
