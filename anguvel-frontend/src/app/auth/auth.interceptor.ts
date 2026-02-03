@@ -4,11 +4,14 @@ import { AuthService } from './auth.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
-  const authToken = authService.getToken();
+  const authToken = authService.getToken(); // Ahora ya no dará error
 
+  // Si hay token, se adjunta automáticamente a todas las peticiones hacia Laravel
   if (authToken) {
     const authReq = req.clone({
-      headers: req.headers.set('Authorization', `Bearer ${authToken}`)
+      setHeaders: {
+        Authorization: `Bearer ${authToken}`
+      }
     });
     return next(authReq);
   }

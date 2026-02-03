@@ -11,8 +11,8 @@ class Reporte_Incidencias extends Model
 
     protected $table = 'reporte_incidencias';
     protected $primaryKey = 'id_reporte_incidencia';
-    public $timestamps = false;
-    
+    public $timestamps = false; 
+
     protected $fillable = [
         'numero_ticket', 
         'estado', 
@@ -28,14 +28,9 @@ class Reporte_Incidencias extends Model
         'id_usuario',
     ];
 
-    // Relación con Facultad
+    // Relación inversa: Un reporte pertenece a un usuario
     public function usuario()
     {
         return $this->belongsTo(Usuario::class, 'id_usuario', 'id_usuario');
-    }
-
-    public function getRouteKeyName()
-    {
-        return 'id_reporte_incidencia';
     }
 }

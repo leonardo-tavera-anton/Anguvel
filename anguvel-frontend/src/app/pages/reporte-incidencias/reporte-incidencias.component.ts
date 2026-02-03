@@ -1,8 +1,8 @@
-import { Component, OnInit, inject } from '@angular/core'; // Añadido inject
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
-import { ApiService } from '../../api.service'; // Asegúrate de que la ruta sea correcta
+import { ApiService } from '../../api.service';
 
 @Component({
   selector: 'app-reporte-incidencias',
@@ -12,7 +12,10 @@ import { ApiService } from '../../api.service'; // Asegúrate de que la ruta sea
     <div class="app-container">
       <header class="app-header">
         <div class="header-content">
-          <span class="back-btn">‹</span>
+          <div class="user-info">
+            <small>Vecino: </small>
+            <strong>{{ nombreCiudadano }}</strong>
+          </div>
           <h1>Nuevo Reporte</h1>
           <div class="ticket-badge">
             <small>TICKET</small>
@@ -87,7 +90,8 @@ import { ApiService } from '../../api.service'; // Asegúrate de que la ruta sea
     .app-container { background: var(--bg); min-height: 100vh; }
     .app-header { background: var(--primary); color: white; padding: 15px; position: sticky; top: 0; z-index: 100; }
     .header-content { display: flex; justify-content: space-between; align-items: center; max-width: 500px; margin: 0 auto; }
-    .back-btn { font-size: 30px; font-weight: 200; cursor: pointer; }
+    .user-info { display: flex; flex-direction: column; font-size: 12px; }
+    .user-info strong { color: #ffcc00; font-size: 14px; }
     h1 { font-size: 18px; margin: 0; }
     .ticket-badge { text-align: right; background: rgba(255,255,255,0.15); padding: 5px 12px; border-radius: 8px; }
     .ticket-badge small { display: block; font-size: 9px; opacity: 0.8; letter-spacing: 1px; }
@@ -126,8 +130,11 @@ import { ApiService } from '../../api.service'; // Asegúrate de que la ruta sea
   `]
 })
 export class ReporteIncidenciasComponent implements OnInit {
-  private apiService = inject(ApiService); // Inyectamos tu ApiService actualizado
+  private apiService = inject(ApiService);
+  private http = inject(HttpClient);
+  private platformId = inject(PLATFORM_ID);
 
+  nombreCiudadano: string = 'Invitado';
   catalogo: any = {
     'SEGURIDAD CIUDADANA': ['ROBO', 'INTENTO DE ROBO', 'SOSPECHOSO', 'PELEAS', 'ASESINATO'],
     'INFRAESTRUCTURA': ['ALUMBRADO', 'VEREDAS', 'BACHES', 'SEMAFOROS'],
@@ -142,6 +149,7 @@ export class ReporteIncidenciasComponent implements OnInit {
   imagePreview: string | null = null;
 
   nuevoReporte: any = {
+    id_usuario: null, // Dinámico
     numero_ticket: '',
     estado: 'pendiente',
     categoria: '',
@@ -155,20 +163,17 @@ export class ReporteIncidenciasComponent implements OnInit {
     foto_adjunta: null
   };
 
-  constructor(private http: HttpClient) {}
-
   ngOnInit() {
     this.generarTicketReal();
+    if (isPlatformBrowser(this.platformId)) {
+      this.nombreCiudadano = localStorage.getItem('nombre') || 'Ciudadano';
+    }
   }
 
   generarTicketReal() {
     const ahora = new Date();
-    const isoDate = ahora.getFullYear().toString() +
-                    (ahora.getMonth() + 1).toString().padStart(2, '0') +
-                    ahora.getDate().toString().padStart(2, '0');
-    const isoTime = ahora.getHours().toString().padStart(2, '0') +
-                    ahora.getMinutes().toString().padStart(2, '0') +
-                    ahora.getSeconds().toString().padStart(2, '0');
+    const isoDate = ahora.getFullYear().toString() + (ahora.getMonth() + 1).toString().padStart(2, '0') + ahora.getDate().toString().padStart(2, '0');
+    const isoTime = ahora.getHours().toString().padStart(2, '0') + ahora.getMinutes().toString().padStart(2, '0') + ahora.getSeconds().toString().padStart(2, '0');
     
     this.nuevoReporte.numero_ticket = `TK-${isoDate}-${isoTime}`;
     this.nuevoReporte.fecha_incidencia = ahora.toLocaleDateString('en-CA');
@@ -181,6 +186,8 @@ export class ReporteIncidenciasComponent implements OnInit {
   }
 
   obtenerGeolocalizacion() {
+    if (!isPlatformBrowser(this.platformId)) return;
+
     this.cargandoGps = true;
     navigator.geolocation.getCurrentPosition((pos) => {
       this.nuevoReporte.latitud = pos.coords.latitude.toString();
@@ -191,7 +198,10 @@ export class ReporteIncidenciasComponent implements OnInit {
           this.nuevoReporte.ubicacion_incidencia = data.display_name;
           this.cargandoGps = false;
         }, () => this.cargandoGps = false);
-    }, () => this.cargandoGps = false);
+    }, () => {
+      alert("Por favor, activa el GPS para reportar.");
+      this.cargandoGps = false;
+    });
   }
 
   onFileSelected(event: any) {
@@ -209,15 +219,34 @@ export class ReporteIncidenciasComponent implements OnInit {
   }
 
   enviarIncidencia() {
-    // Usamos el ApiService para enviar la data real al Back
-    this.apiService.crearReporte(this.nuevoReporte).subscribe({
-      next: (res) => {
-        alert("✅ Reporte guardado en base de datos. Ticket: " + this.nuevoReporte.numero_ticket);
-        this.resetForm();
-      },
+    const idUser = localStorage.getItem('id_usuario');
+    if (!idUser) return alert("Sesión expirada");
+
+    const formData = new FormData();
+    
+    // Convertimos todo a String para evitar fallos de formato en el envío
+    formData.append('id_usuario', idUser);
+    formData.append('numero_ticket', this.nuevoReporte.numero_ticket);
+    formData.append('categoria', this.nuevoReporte.categoria);
+    formData.append('subcategoria', this.nuevoReporte.subcategoria);
+    formData.append('descripcion', this.nuevoReporte.descripcion);
+    formData.append('ubicacion_incidencia', this.nuevoReporte.ubicacion_incidencia || 'Ubicación manual');
+    formData.append('latitud', String(this.nuevoReporte.latitud));
+    formData.append('longitud', String(this.nuevoReporte.longitud));
+    formData.append('fecha_incidencia', this.nuevoReporte.fecha_incidencia);
+    formData.append('hora_incidencia', this.nuevoReporte.hora_incidencia);
+    formData.append('estado', 'pendiente');
+
+    // Solo enviamos la foto si realmente se seleccionó un archivo
+    if (this.nuevoReporte.foto_adjunta instanceof File) {
+      formData.append('foto_adjunta', this.nuevoReporte.foto_adjunta);
+    }
+
+    this.apiService.crearReporte(formData).subscribe({
+      next: (res) => alert("✅ Reporte creado con éxito"),
       error: (err) => {
-        console.error('Error al guardar reporte:', err);
-        alert("❌ Error: No se pudo conectar con el servidor o el ticket ya existe.");
+        console.error('Error 500 detalle:', err.error);
+        alert("❌ Error en el servidor. Revisa la consola.");
       }
     });
   }

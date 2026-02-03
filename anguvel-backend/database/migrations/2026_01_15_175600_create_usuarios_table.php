@@ -6,22 +6,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('usuarios', function (Blueprint $table) {
-            $table->id('id_usuario');
-            $table->string('dni', length: 255)->collate('utf8mb4_unicode_ci')->unique();
-            $table->string('nombre', 255)->collate('utf8mb4_unicode_ci');
-            $table->string('contrasena', 255)->collate('utf8mb4_unicode_ci');
+            // Este crea un BIGINT UNSIGNED
+            $table->id('id_usuario'); 
+            $table->string('dni', 255)->unique();
+            $table->string('nombre', 255);
+            $table->string('contrasena', 255);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('usuarios');

@@ -23,19 +23,22 @@ class UsuarioController extends Controller
         ]);
 
         $validated['contrasena'] = Hash::make($validated['contrasena']);
-
         $usuario = Usuario::create($validated);
 
         return new UsuarioResource($usuario);
     }
 
-    public function show(Usuario $usuario)
+    public function show($id)
     {
+        // Buscamos manualmente por tu PK personalizada para evitar fallos de Route Model Binding
+        $usuario = Usuario::findOrFail($id);
         return new UsuarioResource($usuario);
     }
 
-    public function update(Request $request, Usuario $usuario)
+    public function update(Request $request, $id)
     {
+        $usuario = Usuario::findOrFail($id);
+
         $validated = $request->validate([
             'dni' => 'sometimes|string|max:8|unique:usuarios,dni,' . $usuario->id_usuario . ',id_usuario',
             'nombre' => 'sometimes|string|max:255',
@@ -47,36 +50,41 @@ class UsuarioController extends Controller
         }
 
         $usuario->update($validated);
-
         return new UsuarioResource($usuario);
     }
 
-    public function destroy(Usuario $usuario)
+    public function destroy($id)
     {
+        $usuario = Usuario::findOrFail($id);
         $usuario->delete();
-
         return response()->json(null, 204);
     }
 
     public function login(Request $request)
-{
-    $request->validate([
-        'nombre' => 'required|string',
-        'contrasena' => 'required|string',
-    ]);
+    {
+        $request->validate([
+            'nombre' => 'required|string',
+            'contrasena' => 'required|string',
+        ]);
 
-    $usuario = Usuario::where('nombre', $request->nombre)->first();
+        $usuario = Usuario::where('nombre', $request->nombre)->first();
 
-    if (!$usuario || !Hash::check($request->contrasena, $usuario->contrasena)) {
-        return response()->json(['message' => 'Credenciales incorrectas'], 401);
+        // Si usas Hash::check, asegúrate que en la DB la clave se haya guardado con Hash::make
+        if (!$usuario || !Hash::check($request->contrasena, $usuario->contrasena)) {
+            return response()->json(['message' => 'Credenciales incorrectas'], 401);
+        }
+
+        $token = $usuario->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            // Cambiamos 'usuario' a 'user' para que coincida con tu login.component.ts
+            'user' => [
+                'id_usuario' => $usuario->id_usuario,
+                'nombre' => $usuario->nombre,
+                'dni' => $usuario->dni
+            ],
+            'token' => $token, // Simplificamos para el interceptor
+            'token_type' => 'Bearer',
+        ]);
     }
-
-    $token = $usuario->createToken('auth_token')->plainTextToken;
-
-    return response()->json([
-        'usuario' => new UsuarioResource($usuario),
-        'access_token' => $token,
-        'token_type' => 'Bearer',
-    ]);
-}
 }

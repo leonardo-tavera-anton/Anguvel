@@ -1,45 +1,47 @@
-import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { tap } from 'rxjs/operators';
-import { Router } from '@angular/router';
+import { isPlatformBrowser } from '@angular/common';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
-  private apiUrl = 'http://localhost:8000/api'; // Adjust to your Laravel backend API URL
-  private isAuthenticatedSubject: BehaviorSubject<boolean>;
+  private http = inject(HttpClient);
+  private platformId = inject(PLATFORM_ID);
+  private url_api = 'http://localhost:8000/api';
 
-  public isAuthenticated$: Observable<boolean>;
+  // El estado inicial depende de si existe el ID del usuario en el navegador
+  private loggedIn = new BehaviorSubject<boolean>(this.checkInitialToken());
+  isAuthenticated$ = this.loggedIn.asObservable();
 
-  constructor(
-    private http: HttpClient,
-    private router: Router,
-    @Inject(PLATFORM_ID) private platformId: Object
-  ) {
-    this.isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
-    this.isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
-  }
-
-  private hasToken(): boolean {
+  private checkInitialToken(): boolean {
     if (isPlatformBrowser(this.platformId)) {
-      return !!localStorage.getItem('access_token');
+      return !!localStorage.getItem('id_usuario');
     }
     return false;
   }
 
-  login(credentials: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/login`, credentials).pipe(
-      tap(response => {
-        if (response && response.access_token && response.usuario) {
-          if (isPlatformBrowser(this.platformId)) {
-            localStorage.setItem('access_token', response.access_token);
-            localStorage.setItem('id_usuario', response.usuario.id_usuario);
-            localStorage.setItem('user_name', response.usuario.nombre);
+  // MÉTODO NUEVO: Este es el que pedía tu Interceptor
+  getToken(): string | null {
+    if (isPlatformBrowser(this.platformId)) {
+      return localStorage.getItem('auth_token');
+    }
+    return null;
+  }
+
+  login(credentials: { nombre: string, contrasena: string }): Observable<any> {
+    return this.http.post(`${this.url_api}/login`, credentials).pipe(
+      tap((response: any) => {
+        // Verificamos respuesta y que estemos en el navegador
+        if (response.user && isPlatformBrowser(this.platformId)) {
+          localStorage.setItem('id_usuario', response.user.id_usuario.toString());
+          localStorage.setItem('nombre', response.user.nombre);
+          
+          if (response.token) {
+            localStorage.setItem('auth_token', response.token);
           }
-          this.isAuthenticatedSubject.next(true);
+          
+          // Activamos el estado de autenticación
+          this.loggedIn.next(true);
         }
       })
     );
@@ -47,21 +49,8 @@ export class AuthService {
 
   logout(): void {
     if (isPlatformBrowser(this.platformId)) {
-      // Call a backend logout endpoint here if it exists and is needed.
-      // e.g., this.http.post(`${this.apiUrl}/logout`, {}).subscribe();
-      
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('id_usuario');
-      localStorage.removeItem('user_name');
+      localStorage.clear();
     }
-    this.isAuthenticatedSubject.next(false);
-    this.router.navigate(['/login']); // Redirect to login page after logout
-  }
-
-  getToken(): string | null {
-    if (isPlatformBrowser(this.platformId)) {
-      return localStorage.getItem('access_token');
-    }
-    return null;
+    this.loggedIn.next(false);
   }
 }
