@@ -29,12 +29,10 @@ class Reporte_Incidencias extends Model
     ];
 
     // Relación con Facultad
-    public function facultad()
+    public function usuario()
     {
-        return $this->belongsTo(Facultad::class, 'id_facultad', 'id_facultad');
+        return $this->belongsTo(Usuario::class, 'id_usuario', 'id_usuario');
     }
-
-
 
     public function getRouteKeyName()
     {
