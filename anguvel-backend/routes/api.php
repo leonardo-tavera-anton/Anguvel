@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Auth\Events\Login;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ConsultaProyectoController;
@@ -16,17 +15,24 @@ use App\Http\Controllers\UsuarioController;
 |--------------------------------------------------------------------------
 */
 
+// 1. Ruta para obtener el usuario autenticado
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+// 2. Autenticación y Registro (Públicos)
 Route::post('/login', [UsuarioController::class, 'login'])->name('login');
+Route::post('/usuarios', [UsuarioController::class, 'store']); // Habilitamos el registro
 
+// 3. Recursos API
+// Al usar apiResource, Laravel crea:
+// GET /reporte_incidencias -> index()
+// POST /reporte_incidencias -> store()
+// GET /reporte_incidencias/{id} -> show()
+Route::apiResource('reporte_incidencias', ReporteIncidenciasController::class);
+
+Route::apiResource('usuarios', UsuarioController::class)->except(['store']);
 Route::apiResource('consulta_proyectos', ConsultaProyectoController::class);
 Route::apiResource('gestion_tributaria_pagos', GestionTributariaPagosController::class);
-Route::apiResource('reporte_incidencias', ReporteIncidenciasController::class);
 Route::apiResource('seguridad_ciudadana', SeguridadCiudadanaController::class);
 Route::apiResource('tramites_licencias', TramitesLicenciasController::class);
-Route::apiResource('usuarios', UsuarioController::class)->except(['store']);
-
-
